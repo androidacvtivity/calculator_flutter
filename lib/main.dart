@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const CalculatorApp());
@@ -14,7 +15,122 @@ class CalculatorApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const CalculatorPage(),
+      home: const ClockPage(),
+    );
+  }
+}
+
+class ClockPage extends StatefulWidget {
+  const ClockPage({super.key});
+
+  @override
+  State<ClockPage> createState() => _ClockPageState();
+}
+
+class _ClockPageState extends State<ClockPage> {
+  late final Timer _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _twoDigits(int value) => value.toString().padLeft(2, '0');
+
+  String _formatTime(DateTime dateTime) {
+    final hours = _twoDigits(dateTime.hour);
+    final minutes = _twoDigits(dateTime.minute);
+    final seconds = _twoDigits(dateTime.second);
+    return '$hours:$minutes:$seconds';
+  }
+
+  String _formatDate(DateTime dateTime) {
+    final day = _twoDigits(dateTime.day);
+    final month = _twoDigits(dateTime.month);
+    final year = dateTime.year;
+    return '$day.$month.$year';
+  }
+
+  void _openCalculator(BuildContext context) {
+    Navigator.of(context).pop(); // close drawer
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const CalculatorPage()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final timeText = _formatTime(_now);
+    final dateText = _formatDate(_now);
+    final colors = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ceas'), centerTitle: true),
+      drawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(color: colors.primary),
+                child: const Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    'Meniu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.calculate),
+                title: const Text('Calculator'),
+                onTap: () => _openCalculator(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.access_time),
+                title: const Text('Ceas'),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                timeText,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                dateText,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -183,7 +299,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Simple Calculator'), centerTitle: true),
+      appBar: AppBar(title: const Text('Calculator'), centerTitle: true),
       body: SafeArea(
         child: Column(
           children: [
