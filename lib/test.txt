@@ -1,1 +1,8 @@
-/Users/bancusoft/Projects/calculator_flutter/lib/main.dart
+d44188a9
+
+
+flutter run -d R9WR508HDYJ 
+
+flutter run -d d44188a9
+
+flutter run -d 00008030-000C14100A2B402E
