@@ -6,3 +6,41 @@ flutter run -d R9WR508HDYJ
 flutter run -d d44188a9
 
 flutter run -d 00008030-000C14100A2B402E
+
+
+Conținut meniu lateral
+
+Meniul lateral va conține o listă de opțiuni (submenu).
+
+Prima opțiune din meniu: „Calculator”.
+
+(Opțional) se poate include și „Ceas” pentru revenire rapidă.
+
+Adauga in menu inca un punct - About 
+- si sa fie 
+
+Vitalie Bancu
+software inginer  
+tel - +37367770604
+
+telefonul sa fie clicabil - cand se face click sa creieze nunarul pentru call 
+
+5. Conținut meniu lateral
+
+Meniul lateral va conține o listă de opțiuni (submenu).
+
+Prima opțiune din meniu: „Calculator”.
+
+(Opțional) se poate include și „Ceas” pentru revenire rapidă.
+
+6. Navigare
+
+La selectarea opțiunii „Calculator”:
+
+meniul lateral se închide
+
+se afișează ecranul „Calculator” (ecran existent)
+
+La revenire (Back / Close):
+
+utilizatorul revine la ecranul „Ceas”.
