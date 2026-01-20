@@ -1,7 +1,21 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(const CalculatorApp());
+
+const String _phoneNumber = '+37367770604';
+
+Future<void> _launchPhone(BuildContext context, String number) async {
+  final uri = Uri(scheme: 'tel', path: number);
+  final launched = await launchUrl(uri);
+  if (!launched && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nu se poate iniția apelul.')),
+    );
+  }
+}
 
 class CalculatorApp extends StatelessWidget {
   const CalculatorApp({super.key});
@@ -28,14 +42,16 @@ class ClockPage extends StatefulWidget {
 }
 
 class _ClockPageState extends State<ClockPage> {
-  late final Timer _timer;
+  late Timer _timer;
   DateTime _now = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _now = DateTime.now());
+      setState(() {
+        _now = DateTime.now();
+      });
     });
   }
 
@@ -63,9 +79,11 @@ class _ClockPageState extends State<ClockPage> {
 
   void _openCalculator(BuildContext context) {
     Navigator.of(context).pop(); // close drawer
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const CalculatorPage()));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const CalculatorPage(),
+      ),
+    );
   }
 
   @override
@@ -76,38 +94,10 @@ class _ClockPageState extends State<ClockPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ceas'), centerTitle: true),
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: colors.primary),
-                child: const Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Meniu',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.calculate),
-                title: const Text('Calculator'),
-                onTap: () => _openCalculator(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.access_time),
-                title: const Text('Ceas'),
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        ),
+      drawer: AppDrawer(
+        colors: colors,
+        onCalculatorTap: () => _openCalculator(context),
+        onClockTap: () => Navigator.of(context).pop(),
       ),
       body: SafeArea(
         child: Center(
@@ -203,11 +193,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
       if (_storedValue != null &&
           _pendingOperator != null &&
           !_clearOnNextDigit) {
-        final result = _calculate(
-          _storedValue!,
-          currentValue,
-          _pendingOperator!,
-        );
+        final result =
+        _calculate(_storedValue!, currentValue, _pendingOperator!);
         _display = _formatNumber(result);
         _storedValue = result;
       } else {
@@ -224,11 +211,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
     setState(() {
       if (_storedValue != null && _pendingOperator != null) {
-        final result = _calculate(
-          _storedValue!,
-          currentValue,
-          _pendingOperator!,
-        );
+        final result =
+        _calculate(_storedValue!, currentValue, _pendingOperator!);
         _display = _formatNumber(result);
         _storedValue = null;
         _pendingOperator = null;
@@ -246,18 +230,21 @@ class _CalculatorPageState extends State<CalculatorPage> {
       case '×':
         return left * right;
       case '÷':
-        return right == 0 ? double.nan : left / right;
+        return right == 0 ? 0 : left / right;
       default:
         return right;
     }
   }
 
   String _formatNumber(double value) {
-    if (value.isNaN || value.isInfinite) return 'Error';
+    if (value.isNaN || value.isInfinite) {
+      return 'Error';
+    }
 
     final asInt = value.toInt();
-    if (value == asInt) return asInt.toString();
-
+    if (value == asInt) {
+      return asInt.toString();
+    }
     final text = value.toStringAsFixed(6);
     return text.replaceFirst(RegExp(r'\.?0+$'), '');
   }
@@ -300,6 +287,14 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Calculator'), centerTitle: true),
+      drawer: AppDrawer(
+        colors: colorScheme,
+        onCalculatorTap: () => Navigator.of(context).pop(),
+        onClockTap: () {
+          Navigator.of(context).pop(); // close drawer
+          Navigator.of(context).pop(); // back to clock
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -352,18 +347,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
                   ),
                   Row(
                     children: [
-                      _buildButton(
-                        label: '7',
-                        onPressed: () => _handleDigit('7'),
-                      ),
-                      _buildButton(
-                        label: '8',
-                        onPressed: () => _handleDigit('8'),
-                      ),
-                      _buildButton(
-                        label: '9',
-                        onPressed: () => _handleDigit('9'),
-                      ),
+                      _buildButton(label: '7', onPressed: () => _handleDigit('7')),
+                      _buildButton(label: '8', onPressed: () => _handleDigit('8')),
+                      _buildButton(label: '9', onPressed: () => _handleDigit('9')),
                       _buildButton(
                         label: '×',
                         onPressed: () => _handleOperator('×'),
@@ -374,18 +360,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
                   ),
                   Row(
                     children: [
-                      _buildButton(
-                        label: '4',
-                        onPressed: () => _handleDigit('4'),
-                      ),
-                      _buildButton(
-                        label: '5',
-                        onPressed: () => _handleDigit('5'),
-                      ),
-                      _buildButton(
-                        label: '6',
-                        onPressed: () => _handleDigit('6'),
-                      ),
+                      _buildButton(label: '4', onPressed: () => _handleDigit('4')),
+                      _buildButton(label: '5', onPressed: () => _handleDigit('5')),
+                      _buildButton(label: '6', onPressed: () => _handleDigit('6')),
                       _buildButton(
                         label: '-',
                         onPressed: () => _handleOperator('-'),
@@ -396,18 +373,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
                   ),
                   Row(
                     children: [
-                      _buildButton(
-                        label: '1',
-                        onPressed: () => _handleDigit('1'),
-                      ),
-                      _buildButton(
-                        label: '2',
-                        onPressed: () => _handleDigit('2'),
-                      ),
-                      _buildButton(
-                        label: '3',
-                        onPressed: () => _handleDigit('3'),
-                      ),
+                      _buildButton(label: '1', onPressed: () => _handleDigit('1')),
+                      _buildButton(label: '2', onPressed: () => _handleDigit('2')),
+                      _buildButton(label: '3', onPressed: () => _handleDigit('3')),
                       _buildButton(
                         label: '+',
                         onPressed: () => _handleOperator('+'),
@@ -434,6 +402,74 @@ class _CalculatorPageState extends State<CalculatorPage> {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({
+    super.key,
+    required this.colors,
+    required this.onCalculatorTap,
+    required this.onClockTap,
+  });
+
+  final ColorScheme colors;
+  final VoidCallback onCalculatorTap;
+  final VoidCallback onClockTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: colors.primary),
+              child: const Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  'Meniu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calculate),
+              title: const Text('Calculator'),
+              onTap: onCalculatorTap,
+            ),
+            ListTile(
+              leading: const Icon(Icons.access_time),
+              title: const Text('Ceas'),
+              onTap: onClockTap,
+            ),
+            const Divider(),
+            ExpansionTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About'),
+              children: [
+                ListTile(
+                  title: Text('Vitalie Bancu', style: textTheme.titleMedium),
+                  subtitle: const Text('software inginer'),
+                ),
+                ListTile(
+                  title: Text('tel - $_phoneNumber'),
+                  trailing: const Icon(Icons.call),
+                  onTap: () => _launchPhone(context, _phoneNumber),
+                ),
+              ],
             ),
           ],
         ),
