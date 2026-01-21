@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 void main() => runApp(const CalculatorApp());
 
 const String _phoneNumber = '+37367770604';
+const String _phoneNumberAlt = '+37368325707';
 
 Future<void> _launchPhone(BuildContext context, String number) async {
   final uri = Uri(scheme: 'tel', path: number);
@@ -468,6 +469,11 @@ class AppDrawer extends StatelessWidget {
                   title: Text('tel - $_phoneNumber'),
                   trailing: const Icon(Icons.call),
                   onTap: () => _launchPhone(context, _phoneNumber),
+                ),
+                ListTile(
+                  title: Text('tel - $_phoneNumberAlt'),
+                  trailing: const Icon(Icons.call),
+                  onTap: () => _launchPhone(context, _phoneNumberAlt),
                 ),
               ],
             ),
