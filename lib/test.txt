@@ -16,6 +16,11 @@ Prima opțiune din meniu: „Calculator”.
 
 (Opțional) se poate include și „Ceas” pentru revenire rapidă.
 
+In meniu About
+adauga inca un numar de telefon 
+
++37368325707
+
 Adauga in menu inca un punct - About 
 - si sa fie 
 
